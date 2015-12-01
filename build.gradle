@@ -1,0 +1,60 @@
+version = '0.1.0-SNAPSHOT'
+group = 'com.vmware.gradle'
+description = ''
+
+apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'jacoco'
+
+repositories {
+    jcenter()
+}
+
+task createClasspathManifest {
+    def outputDir = file("${buildDir}/${name}")
+
+    inputs.files sourceSets.main.runtimeClasspath
+    outputs.dir outputDir
+
+    doLast {
+        outputDir.mkdirs()
+        file("${outputDir}/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
+    }
+}
+
+test.dependsOn(createClasspathManifest)
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+    testCompile gradleTestKit()
+    testCompile 'junit:junit:4.12'
+    testRuntime files(createClasspathManifest)
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.6'
+}
+
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
