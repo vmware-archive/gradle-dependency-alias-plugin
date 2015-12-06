@@ -24,7 +24,7 @@ class DependencyAliasPluginIntegrationTest extends BaseSettingsPluginIntegration
 
     @Before
     public void setup() throws IOException {
-        createHelloWorldIn('src/main/java/')
+        createDirectoryTree('src/main/java/')
     }
 
     @Test
@@ -40,11 +40,11 @@ class DependencyAliasPluginIntegrationTest extends BaseSettingsPluginIntegration
 
         BuildResult result = GradleRunner.create()
                 .withProjectDir(testDir.getRoot())
-                .withArguments('--refresh-dependencies', 'compileJava', '--info')
+                .withArguments('dependencies')
                 .build();
 
-        Assert.assertEquals(TaskOutcome.SUCCESS, result.task(":compileJava").getOutcome())
-        Assert.assertTrue(result.getStandardOutput().contains('junit/junit/4.12/junit-4.12.jar'))
+        Assert.assertEquals(TaskOutcome.SUCCESS, result.task(":dependencies").getOutcome())
+        Assert.assertTrue(getOutput(result).contains('junit:junit:4.12'))
     }
 
     @Test
@@ -59,12 +59,12 @@ class DependencyAliasPluginIntegrationTest extends BaseSettingsPluginIntegration
 
         BuildResult result = GradleRunner.create()
                 .withProjectDir(testDir.getRoot())
-                .withArguments('--refresh-dependencies', 'compileJava', '--info')
+                .withArguments('dependencies')
                 .build();
 
-        Assert.assertEquals(TaskOutcome.SUCCESS, result.task(":compileJava").getOutcome())
-        Assert.assertTrue(result.getStandardOutput().contains('junit/junit/4.12/junit-4.12.jar'))
-        Assert.assertTrue(result.getStandardOutput().contains('org/mockito/mockito-all/1.10.19/mockito-all-1.10.19.jar'))
+        Assert.assertEquals(TaskOutcome.SUCCESS, result.task(":dependencies").getOutcome())
+        Assert.assertTrue(getOutput(result).contains('junit:junit:4.12'))
+        Assert.assertTrue(getOutput(result).contains('org.mockito:mockito-all:1.10.19'))
     }
 
     @Test
@@ -80,16 +80,16 @@ class DependencyAliasPluginIntegrationTest extends BaseSettingsPluginIntegration
                          | }
                       '''.stripMargin())
 
-        createHelloWorldIn('child/src/main/java/')
+        createDirectoryTree('child/src/main/java/')
         createBuildIn('child/', 'dependencies { compile junit() }')
 
         BuildResult result = GradleRunner.create()
                 .withProjectDir(testDir.getRoot())
-                .withArguments('--refresh-dependencies', 'compileJava', '--info')
+                .withArguments(':child:dependencies')
                 .build();
 
-        Assert.assertEquals(TaskOutcome.SUCCESS, result.task(":compileJava").getOutcome())
-        Assert.assertTrue(result.getStandardOutput().contains('junit/junit/4.12/junit-4.12.jar'))
+        Assert.assertEquals(TaskOutcome.SUCCESS, result.task(":child:dependencies").getOutcome())
+        Assert.assertTrue(getOutput(result).contains('junit:junit:4.12'))
     }
 
 
@@ -97,18 +97,6 @@ class DependencyAliasPluginIntegrationTest extends BaseSettingsPluginIntegration
         File dir = new File(testDir.getRoot(), path)
         dir.mkdirs()
         return dir
-    }
-
-    private File createHelloWorldIn(String path) {
-        createDirectoryTree(path)
-        File helloWorld = testDir.newFile("${path}/HelloWorld.java")
-        helloWorld << '''  |public class HelloWorld {
-                           |     public static void main(String[] args) {
-                           |         // Prints "Hello, World" to the terminal window.
-                           |         System.out.println("Hello, World");
-                           |     }
-                           |}'''.stripMargin()
-        return helloWorld
     }
 
     private File createBuildIn(String content) {
@@ -119,5 +107,21 @@ class DependencyAliasPluginIntegrationTest extends BaseSettingsPluginIntegration
         File buildFile = testDir.newFile("${path}/build.gradle");
         buildFile << content
         return buildFile
+    }
+
+    /***
+     * Gradle does not have BC on incubating feature such as testkit
+     * version 2.9 changed getStandardOutput (2.6 - 2.8) to getOutput (2.9 and onwards)
+     * this method will fetch the right value via metaclass inspection
+     * @param result GradleRunner's BuildResult
+     * @return GradleRunner's execution output
+     */
+    private String getOutput(BuildResult result) {
+        if (result.respondsTo('getOutput')){
+            //2.9
+            return result.getOutput();
+        }
+        //pre 2.9
+        return result.getStandardOutput();
     }
 }

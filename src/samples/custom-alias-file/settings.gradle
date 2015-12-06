@@ -1,0 +1,14 @@
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'com.vmware.gradle:gradle-dependency-alias-plugin:0.1.0-SNAPSHOT'
+    }
+}
+
+apply plugin: 'com.vmware.dependency-alias'
+
+alias {
+    aliasFile = 'alias.custom'
+}

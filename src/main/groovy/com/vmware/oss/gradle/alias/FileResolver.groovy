@@ -9,6 +9,6 @@
 
 package com.vmware.oss.gradle.alias
 
-interface FileResolver {
+public interface FileResolver {
     def Map<Object, Object> resolve(String file)
 }

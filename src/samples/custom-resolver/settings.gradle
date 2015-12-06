@@ -1,0 +1,15 @@
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'com.vmware.gradle:gradle-dependency-alias-plugin:0.1.0-SNAPSHOT'
+    }
+}
+
+apply plugin: 'com.vmware.dependency-alias'
+
+alias {
+    aliasFile = 'fakefile'
+    aliasFileResolver = { file -> ['junit':'junit:junit:4.12'] } as com.vmware.oss.gradle.alias.FileResolver
+}
