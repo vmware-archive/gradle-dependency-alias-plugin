@@ -6,4 +6,5 @@ repositories {
 
 dependencies {
     compile junit()
+    compile log4j()
 }

@@ -47,7 +47,21 @@ class DependencyAliasPluginTest {
 
     @Test
     void testAliasInvocationHandler() {
-
+        DependencyAliasPlugin tested = new DependencyAliasPlugin()
+        Object actual = tested.aliasInvocationHandler('testValue', null)
+        Assert.assertEquals('testValue', actual)
+        actual = tested.aliasInvocationHandler('testValue1,testValue2', null)
+        Assert.assertTrue(actual instanceof Object[])
+        Object[] actualArr = (Object[]) actual
+        Assert.assertEquals(2, actualArr.length)
+        Assert.assertTrue(actualArr.contains('testValue1'))
+        Assert.assertTrue(actualArr.contains('testValue2'))
+        actual = tested.aliasInvocationHandler('testValue1, testValue2', null)
+        Assert.assertTrue(actual instanceof Object[])
+        actualArr = (String[]) actual
+        Assert.assertEquals(2, actualArr.length)
+        Assert.assertTrue(actualArr.contains('testValue1'))
+        Assert.assertTrue(actualArr.contains('testValue2'))
     }
 
     @Test

@@ -40,11 +40,32 @@ class DependencyAliasPluginIntegrationTest extends BaseSettingsPluginIntegration
 
         BuildResult result = GradleRunner.create()
                 .withProjectDir(testDir.getRoot())
-                .withArguments('dependencies')
+                .withArguments('dependencies', '--configuration', 'testCompile')
                 .build();
 
         Assert.assertEquals(TaskOutcome.SUCCESS, result.task(":dependencies").getOutcome())
         Assert.assertTrue(getOutput(result).contains('junit:junit:4.12'))
+    }
+
+    @Test
+    void testDependencyAliasWithMultipleDeps() {
+        AliasesFile aliases = AliasesFile.create(testDir).add('log4j', 'org.apache.logging.log4j:log4j-api:2.4.1,org.apache.logging.log4j:log4j-core:2.4.1')
+        SettingsFile.create(testDir).withPluginClasspath(getPluginClasspath())
+                .apply('com.vmware.dependency-alias')
+                .withAliasExtension(aliases.absolutePath)
+        BuildFile.create(testDir).apply('java')
+                .withRepositories('jcenter()')
+                .withDependencies('compile log4j()')
+
+
+        BuildResult result = GradleRunner.create()
+                .withProjectDir(testDir.getRoot())
+                .withArguments('dependencies', '--configuration', 'testCompile')
+                .build();
+
+        Assert.assertEquals(TaskOutcome.SUCCESS, result.task(":dependencies").getOutcome())
+        Assert.assertTrue(getOutput(result).contains('org.apache.logging.log4j:log4j-api:2.4.1'))
+        Assert.assertTrue(getOutput(result).contains('org.apache.logging.log4j:log4j-core:2.4.1'))
     }
 
     @Test
@@ -59,7 +80,7 @@ class DependencyAliasPluginIntegrationTest extends BaseSettingsPluginIntegration
 
         BuildResult result = GradleRunner.create()
                 .withProjectDir(testDir.getRoot())
-                .withArguments('dependencies')
+                .withArguments('dependencies', '--configuration', 'testCompile')
                 .build();
 
         Assert.assertEquals(TaskOutcome.SUCCESS, result.task(":dependencies").getOutcome())
@@ -85,7 +106,7 @@ class DependencyAliasPluginIntegrationTest extends BaseSettingsPluginIntegration
 
         BuildResult result = GradleRunner.create()
                 .withProjectDir(testDir.getRoot())
-                .withArguments(':child:dependencies')
+                .withArguments(':child:dependencies', '--configuration', 'testCompile')
                 .build();
 
         Assert.assertEquals(TaskOutcome.SUCCESS, result.task(":child:dependencies").getOutcome())

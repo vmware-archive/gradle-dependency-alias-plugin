@@ -48,6 +48,7 @@ This plugin was tested with the following Gradle versions:
 - 2.7
 - 2.8
 - 2.9
+
 It does not mean that the plugin won't work on earlier versions of Gradle.
 It does mean that the integration tests (using Gradle's TestKit) won't work on pre 2.6 versions.
 
@@ -55,5 +56,5 @@ It does mean that the integration tests (using Gradle's TestKit) won't work on p
 - [ ] Continuous Integration
 - [ ] Coverage Report (Currently unit tests cover ~80%, 100% with integration tests) 
 - [ ] Make plugin accessible via standard manners (e.g. Bintray, maven central, Gradle plugin portal)
-- [ ] Support aliasing collection of dependencies
+- [X] Support aliasing collection of dependencies
 - [ ] Support overriding version with alias parameters (for aliases with singleton dependency only)

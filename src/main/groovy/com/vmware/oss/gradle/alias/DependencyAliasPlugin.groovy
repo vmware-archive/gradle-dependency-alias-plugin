@@ -40,8 +40,13 @@ class DependencyAliasPlugin implements Plugin<Settings> {
         }
     }
 
-    String aliasInvocationHandler(String value, Object[] args) {
-        //TODO: collections
+    Object aliasInvocationHandler(String value, Object[] args) {
+        if (value.contains(',')) {
+            //collection alias
+            //TODO: validate args is empty
+            return value.split(',').collect { it.trim() }.toArray()
+        }
+        //TODO: use args to override version
         return value
     }
 
