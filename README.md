@@ -1,3 +1,4 @@
+# VMware has ended active development of this project, this repository will no longer be updated.
 # Grade Dependency Alias Plugin
 Dependency Alias Plugin is an Apache 2.0 licensed Gradle plugin that provides a simple mean to alias Gradle-style dependency notation with simplified methods that appears to be built-into Gradle itself.
 Providing this ability, one can simplify otherwise obscure dependencies by providing them with a clear name or even consolidate related dependencies into a single alias - take the Log4J example:
